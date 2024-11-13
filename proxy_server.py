@@ -1,22 +1,20 @@
+import os
 from flask import Flask, jsonify
+from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
+CORS(app)  # فعال‌سازی CORS
 
 @app.route('/proxy/nobitex', methods=['GET'])
 def nobitex_proxy():
-    # کلید API شما برای نوبیتکس
-    api_key = "1fe354df59f01003c967a0023ad55053447e35cd"  # جایگزینی با کلید API واقعی شما
+    api_key = os.getenv("API_KEY")  # دریافت کلید API از متغیر محیطی
     headers = {
         "Authorization": f"Token {api_key}"
     }
-    
-    # ارسال درخواست به API نوبیتکس
     response = requests.get("https://api.nobitex.ir/users/wallets/list", headers=headers)
-    
-    # بازگرداندن پاسخ به صورت JSON
     return jsonify(response.json())
 
 if __name__ == '__main__':
-    # اجرای سرور روی پورت 5000
-    app.run(port=5000)
+    port = int(os.environ.get("PORT", 10000))  # استفاده از پورت تعیین‌شده توسط Render
+    app.run(host="0.0.0.0", port=port)  # تنظیم سرور برای گوش دادن به آدرس عمومی
